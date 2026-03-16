@@ -105,6 +105,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#b.-purpose-of-study" id="toc-b.-purpose-of-study" class="nav-link" data-scroll-target="#b.-purpose-of-study">b. Purpose of study</a></li>
   <li><a href="#c.-table-of-models" id="toc-c.-table-of-models" class="nav-link" data-scroll-target="#c.-table-of-models">c.&nbsp;Table of models</a></li>
   <li><a href="#d.-run-the-models" id="toc-d.-run-the-models" class="nav-link" data-scroll-target="#d.-run-the-models">d.&nbsp;Run the models</a></li>
+  <li><a href="#e.-select-the-best-model" id="toc-e.-select-the-best-model" class="nav-link" data-scroll-target="#e.-select-the-best-model">e. Select the best model</a></li>
+  <li><a href="#f.-check-diagnostics" id="toc-f.-check-diagnostics" class="nav-link" data-scroll-target="#f.-check-diagnostics">f.&nbsp;Check diagnostics</a></li>
+  <li><a href="#g.-visualize-model-predictions" id="toc-g.-visualize-model-predictions" class="nav-link" data-scroll-target="#g.-visualize-model-predictions">g. Visualize model predictions</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -154,11 +157,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales) <span class="co"># modifying axis labels</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects) <span class="co"># getting model predictions</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MuMIn) <span class="co"># model selection</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># reading in data</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>kelp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Annual_Kelp_All_Years_20250903.csv"</span>)) <span class="co"># read in KFCD abundance and size of giant kelp data and save as an object called kelp</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>mopl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"MOPL_nest-site_selection_Duchardt_et_al._2019.csv"</span>)) <span class="co"># read in Mountain plover data and save as an object called mopl</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DHARMa)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># reading in data</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>kelp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Annual_Kelp_All_Years_20250903.csv"</span>)) <span class="co"># read in KFCD abundance and size of giant kelp data and save as an object called kelp</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>mopl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"MOPL_nest-site_selection_Duchardt_et_al._2019.csv"</span>)) <span class="co"># read in Mountain plover data and save as an object called mopl</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="problem-1.-research-writing" class="level1">
@@ -205,11 +209,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 5 × 3
   site_name    year mean_fronds
   &lt;fct&gt;       &lt;dbl&gt;       &lt;dbl&gt;
-1 Isla Vista   2021       13.1 
-2 Isla Vista   2012       12.8 
-3 Carpinteria  2002        9.79
-4 Carpinteria  2006       10.8 
-5 Carpinteria  2022        9.52</code></pre>
+1 Isla Vista   2008       39.4 
+2 Isla Vista   2021       13.1 
+3 Naples       2009        5.44
+4 Carpinteria  2000        7.98
+5 Carpinteria  2019        3.37</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str</span>(kelp_clean) <span class="co"># display structure</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -332,7 +336,110 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    id <span class="sc">==</span> <span class="st">"available"</span> <span class="sc">~</span> <span class="dv">0</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># keep only the response variable and two predictors of interest</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(used_bin, edgedist, vo_nest)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(used_bin, edgedist, vo_nest)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># model 0: null model, no predictors</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>mopl_model0 <span class="ot">&lt;-</span> <span class="fu">glm</span>(used_bin <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># response</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> mopl_clean, <span class="co"># data frame</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> binomial) <span class="co"># error distribution</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># model 1: saturated model, both visual obstruction and distance to colony edge</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>mopl_model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(used_bin <span class="sc">~</span> vo_nest <span class="sc">+</span> edgedist,  <span class="co"># response vs. edge distance and visual obstruction</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> mopl_clean, <span class="co"># data frame</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> binomial) <span class="co"># error distribution</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co"># model 2: distance to colony edge only</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>mopl_model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>( used_bin <span class="sc">~</span> edgedist, <span class="co"># response vs. edge distance</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data =</span> mopl_clean, <span class="co"># data frame</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                     <span class="at">family =</span> <span class="st">"binomial"</span>) <span class="co"># error distribution</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co"># model 3: visual obstruction only</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>mopl_model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>( used_bin <span class="sc">~</span> vo_nest, <span class="co"># response vs. visual obstruction</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data =</span> mopl_clean, <span class="co"># data frame</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>                     <span class="at">family =</span> <span class="st">"binomial"</span>) <span class="co"># error distribution</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="e.-select-the-best-model" class="level2">
+<h2 class="anchored" data-anchor-id="e.-select-the-best-model">e. Select the best model</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the AIC for each model</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">AICc</span>( </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  mopl_model0,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  mopl_model1,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  mopl_model2,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  mopl_model3</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(AICc) <span class="co"># arrange by increasing AIC</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            df     AICc
+mopl_model3  2 331.8130
+mopl_model1  3 333.8293
+mopl_model0  1 384.6318
+mopl_model2  2 386.1351</code></pre>
+</div>
+</div>
+<p>The best model as determined by Akaike’s Information Criterion (AIC) is the model predicting the probability of Mountain Plover nest site occupancy using visual obstruction as the sole predictor (AIC = 331.81). This model had a lower AIC value than the saturated model containing both visual obstruction and distance to prairie dog colony edge, the model containing only distance to colony edge, and the null model.</p>
+</section>
+<section id="f.-check-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="f.-check-diagnostics">f.&nbsp;Check diagnostics</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulateResiduals</span>(mopl_model3) <span class="co"># check DHARMa diagnostic plots for mopl_model3</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ENVS193DS_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Simulated residuals from the DHARMa package indicate that model assumptions are met. The QQ plot shows points closely following the expected diagonal with no significant deviation (KS test: p = 0.72, dispersion test: p = 0.99, outlier test: p = 1), and the residuals vs.&nbsp;predicted plot shows no notable patterns, suggesting the model is appropriately specified.</p>
+</section>
+<section id="g.-visualize-model-predictions" class="level2">
+<h2 class="anchored" data-anchor-id="g.-visualize-model-predictions">g. Visualize model predictions</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predicted probabilities from model 3</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  mopl_model3,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">terms =</span> (<span class="st">"vo_nest [all]"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>) </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># base layer: ggplot</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mopl_clean, </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> vo_nest, <span class="co"># x-axis visual obstruction</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> used_bin) <span class="co"># y-axis binary nest site use</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>       ) <span class="sc">+</span> </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># first layer: points</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"firebrick4"</span>, </span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span> </span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># second layer: add 95% CI around the predictions and the underlying data</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">data =</span> preds,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">x =</span> x, </span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>                  <span class="at">y =</span> predicted, </span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ymin =</span> conf.low, </span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ymax =</span> conf.high),</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="co"># transparency</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill =</span> <span class="st">"#c07a6d"</span>) <span class="sc">+</span> <span class="co"># custom color for ribbon)</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># third layer: model predictions line</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, </span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> x, </span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> predicted, </span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"#c07a6d"</span>)) <span class="sc">+</span> <span class="co"># custom color for line</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Visual Obstruction (dm)"</span>, </span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Probability of Nest Site Occupancy (1 = Yes, 0 = No)"</span>) <span class="sc">+</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a> <span class="co"># remove gridlines and apply clean theme</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>() <span class="sc">+</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>()) <span class="co"># remove any remaining gridlines</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ENVS193DS_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 </section>
