@@ -1,0 +1,163 @@
+---
+title: "ENVS 193DS Final"
+author: "Macey Hartmann"
+date: "2026-03-17"
+format:
+  html:
+    toc: true # use this to display a table of contents
+execute:
+  message: false # use this to make sure messages don't show up
+  warning: false # use this to make sure warnings don't show up
+---
+
+[GitHub Repo]()
+
+# Set up
+
+```{r}
+#| label: packages and data
+
+# read in your packages here
+library(tidyverse) # general use
+library(here) # file organization
+library(janitor) # cleaning data frames
+library(readxl) # reading excel files
+library(scales) # modifying axis labels
+library(ggeffects) # getting model predictions
+library(MuMIn) # model selection
+
+# reading in data
+
+kelp <- read_csv(here("data", "Annual_Kelp_All_Years_20250903.csv")) # read in KFCD abundance and size of giant kelp data and save as an object called kelp
+mopl <- read_csv(here("data", "MOPL_nest-site_selection_Duchardt_et_al._2019.csv")) # read in Mountain plover data and save as an object called mopl
+```
+
+# Problem 1. Research writing
+
+## a. Transparent statistical methods 
+
+In part 1, they used a simple linear regression, because they are testing whether a single continuous predictor variable (precipitation) predicts a continuous response variable (flooded wetland area). In part 2, they used a Kruskal-Wallis test, because they are comparing the median of a continuous response variable (flooded wetland area) across more than two groups of a single categorical predictor variable (water year classification: wet, above normal, below normal, dry, critical drought).
+
+## b. Figure needed
+
+The coworker should make a jitter plot with an overlaid box plot. The x-axis should display water year classification as a categorical variable with five groups (wet, above normal, below normal, dry, critical drought), and the y-axis should display flooded wetland area in m². The boxplot component should show the median as a horizontal line within the box, with the box itself representing the interquartile range and whiskers extending to the full range of the data as these elements directly correspond to the Kruskal-Wallis test's comparison of medians across groups. The jittered points overlaid on each box should show the underlying raw data for each water year classification, giving the reader a sense of spread and sample size within each group. Using different colors for each water year category would further help a non-statistical audience visually distinguish between the five groups.
+
+## c. Suggestions for rewriting
+
+
+
+## d. Interpretation
+
+
+
+# Problem 2. Data visualization
+
+## a. Cleaning and summarizing
+
+```{r}
+#| label: data-visualization
+#| message: false
+kelp_clean <- kelp |> # create a new object called kelp_clean using kelp
+  clean_names() |> # clean up column names so that only lower case letters and underscores are used
+  filter(site %in% c("IVEE", "NAPL", "CARP")) |> # filter by site 
+  filter(!(date == "2000-09-22" & transect == "6" & quad == "40")) |> # remove observation from 2000-09-22 at transect 6, quad 40
+  # creating a new column called site_name and relabeling sites with full names
+  mutate(site_name = case_when(
+  site == "NAPL" ~ "Naples",
+  site == "IVEE" ~ "Isla Vista",
+  site == "CARP" ~ "Carpinteria" )) |>
+  # converts site_name to a factor and sets level order to Naples, Isla Vista, Carpinteria for plotting
+  mutate(site_name = as_factor(site_name),
+       site_name = fct_relevel(site_name,
+                               "Naples", "Isla Vista", "Carpinteria")) |>
+  group_by(site_name, year) |> # group by site and year for summarizing
+  summarize(mean_fronds = mean(fronds)) |> #  calculate mean fronds per site / year group
+  ungroup() # remove grouping
+
+  slice_sample(kelp_clean, n = 5) # display 5 random rows
+  str(kelp_clean) # display structure
+```
+
+## b. Understanding the data
+
+The observation from 2000-09-22 at transect 6, quad 40 has a frond count value of -99999, which is a value used to indicate missing data (either because data were not collected for that species or because a datasheet was lost, as noted in the Methods and protocols section of the data page). This value is filtered out because -99999 does not represent a real frond count and would skew any calculations of mean fronds if retained.
+
+## c. Visualize the data
+
+```{r}
+#| label: visualize-the-data
+#| message: false
+#| fig-height: 6
+#| fig-width: 8
+# create a plot with the cleaned kelp data set
+ggplot(data = kelp_clean,
+       aes(x = year, # x-axis dates
+           y = mean_fronds, # y-axis mean fronds
+           color = site_name)) + # different colors for each site 
+  # first layer: lines
+  geom_line() +
+  # second layer: points
+  geom_point() + 
+  # coloring each site a new color
+  scale_color_manual(values = c(
+    "Naples" = "#4a9e9e",
+    "Isla Vista" = "#c07a6d",
+    "Carpinteria" = "#8a8a8a")) +
+  labs(title = "Sites vary in mean kelp fronds per year", # graph title
+       x = "Year", # x-axis label
+       y = "Mean kelp fronds per year", # y-axis label
+       color = "Site") + # capitalizing Site in key 
+  theme_light() +  # provides blank panel background with axis lines
+  theme(
+    plot.title = element_text(hjust = 0.5), # center title
+    panel.border = element_blank() # no border
+  )
+```
+
+## d. Interpretation
+
+The Isla Vista site shows the most variable mean kelp fronds per year, as evidenced by the dramatic peaks and troughs in its line. The Isla Vista site spikes to nearly 40 fronds around 2008 and again to ~38 fronds around 2022, then drops to near or below 5 fronds in several intervening years, producing the largest overall range and most erratic trajectory of the three sites. 
+
+The Carpinteria site shows the least variable mean kelp fronds per year, as its line remains relatively flat and close to the bottom of the plot for the entire time series, generally fluctuating between approximately 3 and 13 fronds per year with no dramatic spikes, indicating a much smaller and more consistent range compared to the other two sites.
+
+# Problem 3. Data analysis
+
+## a. Response variable 
+
+In this data set, a 1 indicates that a nest site was actively used by a Mountain Plover for nesting. A 0 indicates an unused site, specifically a randomly selected point within the same colony where no plovers were detected and no nests were observed during surveys in that year.
+
+## b. Purpose of study
+
+Visual obstruction (vo_nest) is a continuous variable measuring the height at which vegetation is sufficiently dense to obscure a 2.5-cm wide pole when viewed from a 1-m height, incorporating both vegetation height and density. As visual obstruction increases, the probability of Mountain Plover nest site use would decrease because Mountain Plovers prefer sparse, short vegetation that allows them to detect approaching ground predators while still providing some concealment for a sitting bird. This information was found in paragraph 4 of the discussion section. 
+
+Distance to prairie dog colony edge (edgedist) is a continuous variable measuring how far a given point is from the nearest edge of the prairie dog colony. As distance to colony edge increases, the probability of Mountain Plover nest site use would decrease because plovers tend to nest closer to colony edges where complementary resources such as taller vegetation for thermoregulation and predator cover are more accessible for adults traveling with broods. This information was found in paragraph 2 of the discussion section. 
+
+## c. Table of models 
+
+| Model number | Visual obstruction | Distance to prairie dog colony | Model description             | 
+|--------------|:------------------:|:------------------------------:|:-----------------------------:| 
+| 0            |                    |                                | No predictors (null model)    |
+| 1            |         X          |               X                | All predictors (full model)   | 
+| 2            |         X          |                                | Visual obstruction only       |   
+| 3            |                    |               X                | Distance to colony edge only  |    
+
+## d. Run the models
+
+```{r}
+mopl_clean <- mopl |> # create a new object called mopl_clean using mopl
+  clean_names() |> # clean up column names so that only lower case letters and underscores are used
+  # create binary response variable: 1 = used nest site, 0 = available site
+  mutate(used_bin = case_when(
+    id == "used" ~ 1,
+    id == "available" ~ 0
+  )) |>
+  # keep only the response variable and two predictors of interest
+  select(used_bin, edgedist, vo_nest)
+```
+
+
+
+
+
+
+
