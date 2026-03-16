@@ -25,6 +25,7 @@ library(readxl) # reading excel files
 library(scales) # modifying axis labels
 library(ggeffects) # getting model predictions
 library(MuMIn) # model selection
+library(DHARMa)
 
 # reading in data
 
@@ -153,8 +154,91 @@ mopl_clean <- mopl |> # create a new object called mopl_clean using mopl
   )) |>
   # keep only the response variable and two predictors of interest
   select(used_bin, edgedist, vo_nest)
+
+# model 0: null model, no predictors
+mopl_model0 <- glm(used_bin ~ 1, # response
+                   data = mopl_clean, # data frame
+                   family = binomial) # error distribution
+
+# model 1: saturated model, both visual obstruction and distance to colony edge
+mopl_model1 <- glm(used_bin ~ vo_nest + edgedist,  # response vs. edge distance and visual obstruction
+              data = mopl_clean, # data frame
+              family = binomial) # error distribution
+
+# model 2: distance to colony edge only
+mopl_model2 <- glm( used_bin ~ edgedist, # response vs. edge distance
+                    data = mopl_clean, # data frame
+                     family = "binomial") # error distribution
+
+# model 3: visual obstruction only
+mopl_model3 <- glm( used_bin ~ vo_nest, # response vs. visual obstruction
+                    data = mopl_clean, # data frame
+                     family = "binomial") # error distribution
 ```
 
+## e. Select the best model
+
+```{r}
+# calculate the AIC for each model
+AICc( 
+  mopl_model0,
+  mopl_model1,
+  mopl_model2,
+  mopl_model3
+) |> 
+  arrange(AICc) # arrange by increasing AIC
+```
+
+The best model as determined by Akaike's Information Criterion (AIC) is the model predicting the probability of Mountain Plover nest site occupancy using visual obstruction as the sole predictor (AIC = 331.81). This model had a lower AIC value than the saturated model containing both visual obstruction and distance to prairie dog colony edge, the model containing only distance to colony edge, and the null model.
+
+## f. Check diagnostics
+
+```{r}
+plot(
+  simulateResiduals(mopl_model3) # check DHARMa diagnostic plots for mopl_model3
+)
+```
+
+Simulated residuals from the DHARMa package indicate that model assumptions are met. The QQ plot shows points closely following the expected diagonal with no significant deviation (KS test: p = 0.72, dispersion test: p = 0.99, outlier test: p = 1), and the residuals vs. predicted plot shows no notable patterns, suggesting the model is appropriately specified.
+
+## g. Visualize model predictions
+
+```{r}
+# predicted probabilities from model 3
+preds <- ggpredict(
+  mopl_model3,
+  terms = ("vo_nest [all]")
+) 
+# base layer: ggplot
+ggplot(mopl_clean, 
+       aes(x = vo_nest, # x-axis visual obstruction
+           y = used_bin) # y-axis binary nest site use
+       ) + 
+  # first layer: points
+  geom_point(size = 4,
+             color = "firebrick4", 
+             alpha = 0.2) + 
+  # second layer: add 95% CI around the predictions and the underlying data
+  geom_ribbon(data = preds,
+              aes(x = x, 
+                  y = predicted, 
+                  ymin = conf.low, 
+                  ymax = conf.high),
+              alpha = 0.3, # transparency
+              fill = "#c07a6d") + # custom color for ribbon)
+  # third layer: model predictions line
+  geom_line(data = preds, 
+            aes(x = x, 
+                y = predicted, 
+                color = "#c07a6d")) + # custom color for line
+  scale_y_continuous(limits = c(0,1),
+                     breaks = c(0,1)) +
+  labs(x = "Visual Obstruction (dm)", 
+       y = "Probability of Nest Site Occupancy (1 = Yes, 0 = No)") +
+ # remove gridlines and apply clean theme
+  theme_light() +
+  theme(panel.grid = element_blank()) # remove any remaining gridlines
+```
 
 
 
