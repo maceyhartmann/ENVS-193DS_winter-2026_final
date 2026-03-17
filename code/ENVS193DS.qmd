@@ -32,6 +32,7 @@ library(rstatix) # kruskal-wallis
 
 kelp <- read_csv(here("data", "Annual_Kelp_All_Years_20250903.csv")) # read in KFCD abundance and size of giant kelp data and save as an object called kelp
 mopl <- read_csv(here("data", "MOPL_nest-site_selection_Duchardt_et_al._2019.csv")) # read in Mountain plover data and save as an object called mopl
+my_data <- read_csv(here("data", "Personal_Data_ENVS194DS.csv")) # read in the personal data as an object named "my_data"
 ```
 
 # Problem 1. Research writing
@@ -242,7 +243,7 @@ ggplot(mopl_clean,
 
 ## h. Write a caption for your figure 
 
-*Figure 1. Predicted probability of Mountain Plover nest site occupancy decreases with increasing visual obstruction.* The predicted probability of nest site occupancy (y-axis) is shown as a function of visual obstruction measured in centimeters (cm) on the x-axis, based on a logistic regression model. The red line represents the model-predicted probability of nest site occupancy, and the shaded ribbon represents the 95% confidence interval around the predictions. Points along y = 1 and y = 0 represent the underlying observed data for used nest sites and unused available sites, respectively, with transparency (alpha) indicating overlapping observations. Data citation: Duchardt, Courtney; Beck, Jeffrey; Augustine, David (2020). Data from: Mountain Plover habitat selection and nest survival in relation to weather variability and spatial attributes of Black-tailed Prairie Dog disturbance [Dataset]. Dryad. https://doi.org/10.5061/dryad.ttdz08kt7.
+**Figure 1. Predicted probability of Mountain Plover nest site occupancy decreases with increasing visual obstruction.** The predicted probability of nest site occupancy (y-axis) is shown as a function of visual obstruction measured in centimeters (cm) on the x-axis, based on a logistic regression model. The red line represents the model-predicted probability of nest site occupancy, and the shaded ribbon represents the 95% confidence interval around the predictions. Points along y = 1 and y = 0 represent the underlying observed data for used nest sites and unused available sites, respectively, with transparency (alpha) indicating overlapping observations. Data citation: Duchardt, Courtney; Beck, Jeffrey; Augustine, David (2020). Data from: Mountain Plover habitat selection and nest survival in relation to weather variability and spatial attributes of Black-tailed Prairie Dog disturbance [Dataset]. Dryad. https://doi.org/10.5061/dryad.ttdz08kt7.
 
 ## i. Calculate model predictions
 
@@ -251,7 +252,7 @@ ggpredict(mopl_model3, # use model 3 (visual obstruction only)
           terms = "vo_nest [0]") # visual obstruction = 0
 ```
 
-## j. 
+## j. Interpret your results
 
 The best model as determined by AIC included only visual obstruction as a predictor of Mountain Plover nest site occupancy, suggesting that distance to prairie dog colony edge did not meaningfully improve model fit beyond visual obstruction alone. At zero visual obstruction (completely bare, unobstructed ground), the predicted probability of nest site occupancy is 0.73 or 73% (95% CI: 0.65, 0.80), and as shown in Figure 1, this probability declined steeply and nonlinearly as visual obstruction increased, approaching near-zero probability at visual obstruction values above approximately 6 cm. This negative relationship between visual obstruction and nest site occupancy is biologically consistent with Mountain Plover habitat preferences described in the discussion, where the authors note that plovers select nest sites with sparse, short vegetation in the range of 3–5 cm because the short, dense layer provides some concealment for a sitting bird while still allowing the plover to scan for and detect approaching ground predators. Additionally, Mountain Plovers blend in especially well with bare soil when viewed by aerial predators, further explaining the strong preference for low visual obstruction at nest sites. These findings reinforce the critical role of black-tailed prairie dogs as ecosystem engineers that maintain the open, disturbed habitat structure that Mountain Plovers require for successful nesting.
 
@@ -259,30 +260,60 @@ The best model as determined by AIC included only visual obstruction as a predic
 
 ## a. Comparing visualizations
 
-*How are the visualizations different?*
+**How are the visualizations different?**
 The affective visualization represents reading data through a hand-drawn tree where each branch represents a reading location (campus, home, coffee shop, outside, other), each leaf represents an individual reading session, and leaf color encodes pages read, making the data experiential and emotionally resonant rather than statistically precise. In contrast, the exploratory visualizations use conventional statistical graphics (a scatterplot showing the relationship between reading duration and pages read, and a boxplot comparing pages read across reading locations). The exploratory visualization prioritizes accurate representation of distributions and relationships while the affective visualization shows aesthetic, emotions, and creativity. 
 
-*What similarities do you see?*
+**What similarities do you see?**
 Both visualizations have the same core variables from the personal dataset: reading location and pages read. The use of color to distinguish categories or encode magnitude appears across both the affective visualization (leaf colors representing pages read) and the exploratory boxplot (different colors per location).
 
-*What patterns do you see?*
+**What patterns do you see?**
 The exploratory boxplot suggests campus reading sessions tend to produce more pages read than home sessions, and the scatterplot shows a positive relationship between reading duration and pages read. These same patterns are present but harder to read precisely in the affective visualization, where the home branch appears to have more leaves clustered at warmer colors (higher pages) than the campus branch, though the non-standard format makes direct comparison less intuitive.
 
-*Feedback and implementation*
+**Feedback and implementation**
 During office hours, feedback from my peers suggested making the leaf size or color scale more explicit so viewers could decode the data without a legend being necessary. I tried to implement this by adding a more consistent color gradient across leaves in the final affective visualization and using a darker yellow color. I also incorporated newspaper into the whole visualization instead of just the tree base to play around with more of a mixed media and get more creative. 
 
 ## b. Designing an analysis
 
-To examine whether reading location predicts the number of pages read per session, I would propose a Kruskal-Wallis test. My response variable, pages read, is a continuous numeric variable, and my predictor variable, reading location (campus, home, coffee shop, outside, other), is a categorical variable with more than two groups. A Kruskal-Wallis test is appropriate here because it compares medians across more than two groups of a categorical predictor, which directly addresses my research question of whether where I read influences how much I read. Additionally, given the small sample size in my personal dataset, the data are unlikely to meet the normality assumption required for a one-way ANOVA, making the Kruskal-Wallis test a more appropriate non-parametric alternative that does not assume a normal distribution.
+To examine whether the day type (school day or non-school day) predicts the number of pages read per session, I would propose a Wilcoxon rank sum test. My response variable, pages read, is a continuous numeric variable, and my predictor variable, day type, is a categorical variable with two groups (school day and non-school day). A Wilcoxon rank sum test is appropriate here because it compares medians between two groups of a categorical predictor, which directly addresses my research question of whether the type of day influences how much I read. Additionally, given the small sample size in my personal dataset and visual deviations observed in the QQ plots, the data are unlikely to meet the normality assumption required for a two-sample t-test, making the Wilcoxon rank sum test a more appropriate non-parametric alternative that does not assume a normal distribution.
 
 ## c. Check any assumptions and run your analysis
 
-```{r}
+### Check all assumptions 
 
+The key assumptions for a Wilcoxon rank sum test include that the response variable is continuous (met by nature of the variable, as pages read is a continuous numeric variable), the predictor variable has two categorical, independent groups (met by nature of the variable (school day or non-school day),  observations are independent (met by study design, as each reading session is a separate, independent observation), and that the two groups have similar distribution shapes (must do visual assumption check). 
+
+```{r}
+#| echo: false
+my_clean_data <- my_data |> # create a new object called my_clean_data using my_data
+  clean_names() |> # clean up column names so that only lower case letters and underscores are used
+  mutate(school_day = recode(school_day,
+                             "yes" = "School Day",
+                             "no" = "Non-School Day"))
 ```
 
+```{r}
+# base layer: ggplot
+ggplot(data = my_clean_data, # use cleaned personal data 
+       aes(x = pages_read, # pages read on x-axis
+           fill = school_day)) + # fill bars by school day 
+ # first layer: histogram
+   geom_histogram(binwidth = 10, 
+                 alpha = 0.7, # transparent bars 
+                 color = "white") + # white outline
+  facet_wrap(~school_day) + # separate panel by day type
+  scale_x_continuous(breaks = seq(0, 80, by = 10)) + # whole number x-axis ticks
+  scale_fill_manual(values = c("Non-School Day" = "#378ADD", # blue for non-school day
+                               "School Day" = "#D85A30")) + # red for school day
+  labs(title = "Distribution of Pages Read by Day Type", # title 
+       x = "Pages Read", # x-axis title
+       y = "Number of Reading Sessions") + # y-axis title
+  theme_linedraw() + # change theme from default
+  theme(legend.position = "none", # remove legend 
+  panel.grid.minor = element_blank(), # remove minor gridlines 
+        axis.line.x = element_line(color = "black")) 
+```
 
-
+### Run the test
 
 
 
