@@ -10,7 +10,7 @@ execute:
   warning: false # use this to make sure warnings don't show up
 ---
 
-[GitHub Repo]()
+[GitHub Repo](https://github.com/maceyhartmann/ENVS-193DS_winter-2026_final)
 
 # Set up
 
