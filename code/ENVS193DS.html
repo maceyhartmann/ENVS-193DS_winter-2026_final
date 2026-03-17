@@ -108,6 +108,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#e.-select-the-best-model" id="toc-e.-select-the-best-model" class="nav-link" data-scroll-target="#e.-select-the-best-model">e. Select the best model</a></li>
   <li><a href="#f.-check-diagnostics" id="toc-f.-check-diagnostics" class="nav-link" data-scroll-target="#f.-check-diagnostics">f.&nbsp;Check diagnostics</a></li>
   <li><a href="#g.-visualize-model-predictions" id="toc-g.-visualize-model-predictions" class="nav-link" data-scroll-target="#g.-visualize-model-predictions">g. Visualize model predictions</a></li>
+  <li><a href="#h.-write-a-caption-for-your-figure" id="toc-h.-write-a-caption-for-your-figure" class="nav-link" data-scroll-target="#h.-write-a-caption-for-your-figure">h. Write a caption for your figure</a></li>
+  <li><a href="#i.-calculate-model-predictions" id="toc-i.-calculate-model-predictions" class="nav-link" data-scroll-target="#i.-calculate-model-predictions">i. Calculate model predictions</a></li>
+  <li><a href="#j." id="toc-j." class="nav-link" data-scroll-target="#j.">j.</a></li>
+  </ul></li>
+  <li><a href="#problem-4.-affective-and-exploratory-visualizations" id="toc-problem-4.-affective-and-exploratory-visualizations" class="nav-link" data-scroll-target="#problem-4.-affective-and-exploratory-visualizations">Problem 4. Affective and exploratory visualizations</a>
+  <ul class="collapse">
+  <li><a href="#a.-comparing-visualizations" id="toc-a.-comparing-visualizations" class="nav-link" data-scroll-target="#a.-comparing-visualizations">a. Comparing visualizations</a></li>
+  <li><a href="#b.-designing-an-analysis" id="toc-b.-designing-an-analysis" class="nav-link" data-scroll-target="#b.-designing-an-analysis">b. Designing an analysis</a></li>
+  <li><a href="#c.-check-any-assumptions-and-run-your-analysis" id="toc-c.-check-any-assumptions-and-run-your-analysis" class="nav-link" data-scroll-target="#c.-check-any-assumptions-and-run-your-analysis">c.&nbsp;Check any assumptions and run your analysis</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -157,12 +166,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales) <span class="co"># modifying axis labels</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects) <span class="co"># getting model predictions</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MuMIn) <span class="co"># model selection</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DHARMa)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># reading in data</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>kelp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Annual_Kelp_All_Years_20250903.csv"</span>)) <span class="co"># read in KFCD abundance and size of giant kelp data and save as an object called kelp</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>mopl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"MOPL_nest-site_selection_Duchardt_et_al._2019.csv"</span>)) <span class="co"># read in Mountain plover data and save as an object called mopl</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DHARMa) <span class="co"># diagnostic check</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstatix) <span class="co"># kruskal-wallis</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># reading in data</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>kelp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Annual_Kelp_All_Years_20250903.csv"</span>)) <span class="co"># read in KFCD abundance and size of giant kelp data and save as an object called kelp</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>mopl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"MOPL_nest-site_selection_Duchardt_et_al._2019.csv"</span>)) <span class="co"># read in Mountain plover data and save as an object called mopl</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="problem-1.-research-writing" class="level1">
@@ -173,7 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="b.-figure-needed" class="level2">
 <h2 class="anchored" data-anchor-id="b.-figure-needed">b. Figure needed</h2>
-<p>The coworker should make a jitter plot with an overlaid box plot. The x-axis should display water year classification as a categorical variable with five groups (wet, above normal, below normal, dry, critical drought), and the y-axis should display flooded wetland area in m². The boxplot component should show the median as a horizontal line within the box, with the box itself representing the interquartile range and whiskers extending to the full range of the data as these elements directly correspond to the Kruskal-Wallis test’s comparison of medians across groups. The jittered points overlaid on each box should show the underlying raw data for each water year classification, giving the reader a sense of spread and sample size within each group. Using different colors for each water year category would further help a non-statistical audience visually distinguish between the five groups.</p>
+<p>The coworker should make a jitter plot with an overlaid side by side box plot. The x-axis should display water year classification as a categorical variable with five groups (wet, above normal, below normal, dry, critical drought), and the y-axis should display flooded wetland area in m². The boxplot component should show the median as a horizontal line within the box, with the box itself representing the interquartile range and whiskers extending to the full range of the data as these elements directly correspond to the Kruskal-Wallis test’s comparison of medians across groups. The jittered points overlaid on each box should show the underlying raw data for each water year classification, giving the reader a sense of spread and sample size within each group. Using different colors for each water year category would further help a non-statistical audience visually distinguish between the five groups.</p>
 </section>
 <section id="c.-suggestions-for-rewriting" class="level2">
 <h2 class="anchored" data-anchor-id="c.-suggestions-for-rewriting">c.&nbsp;Suggestions for rewriting</h2>
@@ -209,11 +219,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 5 × 3
   site_name    year mean_fronds
   &lt;fct&gt;       &lt;dbl&gt;       &lt;dbl&gt;
-1 Isla Vista   2008       39.4 
-2 Isla Vista   2021       13.1 
-3 Naples       2009        5.44
-4 Carpinteria  2000        7.98
-5 Carpinteria  2019        3.37</code></pre>
+1 Naples       2001      0.0606
+2 Carpinteria  2023      4.50  
+3 Carpinteria  2002      9.79  
+4 Isla Vista   2024     10.3   
+5 Isla Vista   2001      6.5   </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str</span>(kelp_clean) <span class="co"># display structure</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -277,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="b.-purpose-of-study" class="level2">
 <h2 class="anchored" data-anchor-id="b.-purpose-of-study">b. Purpose of study</h2>
-<p>Visual obstruction (vo_nest) is a continuous variable measuring the height at which vegetation is sufficiently dense to obscure a 2.5-cm wide pole when viewed from a 1-m height, incorporating both vegetation height and density. As visual obstruction increases, the probability of Mountain Plover nest site use would decrease because Mountain Plovers prefer sparse, short vegetation that allows them to detect approaching ground predators while still providing some concealment for a sitting bird. This information was found in paragraph 4 of the discussion section.</p>
+<p>Visual obstruction (vo_nest) is a numeric continuous variable measuring the height at which vegetation is sufficiently dense to obscure a 2.5-cm wide pole when viewed from a 1-m height, incorporating both vegetation height and density. As visual obstruction increases, the probability of Mountain Plover nest site use would decrease because Mountain Plovers prefer sparse, short vegetation that allows them to detect approaching ground predators while still providing some concealment for a sitting bird. This information was found in paragraph 4 of the discussion section.</p>
 <p>Distance to prairie dog colony edge (edgedist) is a continuous variable measuring how far a given point is from the nearest edge of the prairie dog colony. As distance to colony edge increases, the probability of Mountain Plover nest site use would decrease because plovers tend to nest closer to colony edges where complementary resources such as taller vegetation for thermoregulation and predator cover are more accessible for adults traveling with broods. This information was found in paragraph 2 of the discussion section.</p>
 </section>
 <section id="c.-table-of-models" class="level2">
@@ -312,15 +322,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>2</td>
-<td style="text-align: center;">X</td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;">Visual obstruction only</td>
-</tr>
-<tr class="even">
-<td>3</td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;">X</td>
 <td style="text-align: center;">Distance to colony edge only</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Visual obstruction only.</td>
 </tr>
 </tbody>
 </table>
@@ -341,12 +351,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># model 0: null model, no predictors</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>mopl_model0 <span class="ot">&lt;-</span> <span class="fu">glm</span>(used_bin <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># response</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> mopl_clean, <span class="co"># data frame</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> binomial) <span class="co"># error distribution</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> <span class="st">"binomial"</span>) <span class="co"># error distribution</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># model 1: saturated model, both visual obstruction and distance to colony edge</span></span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>mopl_model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(used_bin <span class="sc">~</span> vo_nest <span class="sc">+</span> edgedist,  <span class="co"># response vs. edge distance and visual obstruction</span></span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> mopl_clean, <span class="co"># data frame</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> binomial) <span class="co"># error distribution</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">"binomial"</span>) <span class="co"># error distribution</span></span>
 <span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co"># model 2: distance to colony edge only</span></span>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>mopl_model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>( used_bin <span class="sc">~</span> edgedist, <span class="co"># response vs. edge distance</span></span>
@@ -363,22 +373,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="e.-select-the-best-model">e. Select the best model</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the AIC for each model</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">AICc</span>( </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>( </span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  mopl_model0,</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  mopl_model1,</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  mopl_model2,</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  mopl_model3</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(AICc) <span class="co"># arrange by increasing AIC</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>            df     AICc
-mopl_model3  2 331.8130
-mopl_model1  3 333.8293
-mopl_model0  1 384.6318
-mopl_model2  2 386.1351</code></pre>
+<pre><code>            df      AIC
+mopl_model0  1 384.6172
+mopl_model1  3 333.7410
+mopl_model2  2 386.0911
+mopl_model3  2 331.7690</code></pre>
 </div>
 </div>
-<p>The best model as determined by Akaike’s Information Criterion (AIC) is the model predicting the probability of Mountain Plover nest site occupancy using visual obstruction as the sole predictor (AIC = 331.81). This model had a lower AIC value than the saturated model containing both visual obstruction and distance to prairie dog colony edge, the model containing only distance to colony edge, and the null model.</p>
+<p>The best model as determined by Akaike’s Information Criterion (AIC) is the model predicting the probability of Mountain Plover nest site occupancy using visual obstruction as the sole predictor (AIC = 331.77). This model had a lower AIC value than the saturated model containing both visual obstruction and distance to prairie dog colony edge, the model containing only distance to colony edge, and the null model.</p>
 </section>
 <section id="f.-check-diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="f.-check-diagnostics">f.&nbsp;Check diagnostics</h2>
@@ -411,7 +420,7 @@ mopl_model2  2 386.1351</code></pre>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>       ) <span class="sc">+</span> </span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># first layer: points</span></span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>,</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"firebrick4"</span>, </span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"forestgreen"</span>, </span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span> </span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># second layer: add 95% CI around the predictions and the underlying data</span></span>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">data =</span> preds,</span>
@@ -424,11 +433,11 @@ mopl_model2  2 386.1351</code></pre>
 <span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># third layer: model predictions line</span></span>
 <span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, </span>
 <span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> x, </span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> predicted, </span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"#c07a6d"</span>)) <span class="sc">+</span> <span class="co"># custom color for line</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> predicted), </span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"#c07a6d"</span>) <span class="sc">+</span> <span class="co"># custom color for line</span></span>
 <span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
 <span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Visual Obstruction (dm)"</span>, </span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Visual Obstruction (cm)"</span>, </span>
 <span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Probability of Nest Site Occupancy (1 = Yes, 0 = No)"</span>) <span class="sc">+</span></span>
 <span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a> <span class="co"># remove gridlines and apply clean theme</span></span>
 <span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>() <span class="sc">+</span></span>
@@ -441,6 +450,45 @@ mopl_model2  2 386.1351</code></pre>
 </div>
 </div>
 </div>
+</section>
+<section id="h.-write-a-caption-for-your-figure" class="level2">
+<h2 class="anchored" data-anchor-id="h.-write-a-caption-for-your-figure">h. Write a caption for your figure</h2>
+<p><em>Figure 1. Predicted probability of Mountain Plover nest site occupancy decreases with increasing visual obstruction.</em> The predicted probability of nest site occupancy (y-axis) is shown as a function of visual obstruction measured in centimeters (cm) on the x-axis, based on a logistic regression model. The red line represents the model-predicted probability of nest site occupancy, and the shaded ribbon represents the 95% confidence interval around the predictions. Points along y = 1 and y = 0 represent the underlying observed data for used nest sites and unused available sites, respectively, with transparency (alpha) indicating overlapping observations. Data citation: Duchardt, Courtney; Beck, Jeffrey; Augustine, David (2020). Data from: Mountain Plover habitat selection and nest survival in relation to weather variability and spatial attributes of Black-tailed Prairie Dog disturbance [Dataset]. Dryad. https://doi.org/10.5061/dryad.ttdz08kt7.</p>
+</section>
+<section id="i.-calculate-model-predictions" class="level2">
+<h2 class="anchored" data-anchor-id="i.-calculate-model-predictions">i. Calculate model predictions</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpredict</span>(mopl_model3, <span class="co"># use model 3 (visual obstruction only)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">terms =</span> <span class="st">"vo_nest [0]"</span>) <span class="co"># visual obstruction = 0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Predicted probabilities of used_bin
+
+vo_nest | Predicted |     95% CI
+--------------------------------
+      0 |      0.73 | 0.65, 0.80</code></pre>
+</div>
+</div>
+</section>
+<section id="j." class="level2">
+<h2 class="anchored" data-anchor-id="j.">j.</h2>
+<p>The best model as determined by AIC included only visual obstruction as a predictor of Mountain Plover nest site occupancy, suggesting that distance to prairie dog colony edge did not meaningfully improve model fit beyond visual obstruction alone. At zero visual obstruction (completely bare, unobstructed ground), the predicted probability of nest site occupancy is 0.73 or 73% (95% CI: 0.65, 0.80), and as shown in Figure 1, this probability declined steeply and nonlinearly as visual obstruction increased, approaching near-zero probability at visual obstruction values above approximately 6 cm. This negative relationship between visual obstruction and nest site occupancy is biologically consistent with Mountain Plover habitat preferences described in the discussion, where the authors note that plovers select nest sites with sparse, short vegetation in the range of 3–5 cm because the short, dense layer provides some concealment for a sitting bird while still allowing the plover to scan for and detect approaching ground predators. Additionally, Mountain Plovers blend in especially well with bare soil when viewed by aerial predators, further explaining the strong preference for low visual obstruction at nest sites. These findings reinforce the critical role of black-tailed prairie dogs as ecosystem engineers that maintain the open, disturbed habitat structure that Mountain Plovers require for successful nesting.</p>
+</section>
+</section>
+<section id="problem-4.-affective-and-exploratory-visualizations" class="level1">
+<h1>Problem 4. Affective and exploratory visualizations</h1>
+<section id="a.-comparing-visualizations" class="level2">
+<h2 class="anchored" data-anchor-id="a.-comparing-visualizations">a. Comparing visualizations</h2>
+<p><em>How are the visualizations different?</em> The affective visualization represents reading data through a hand-drawn tree where each branch represents a reading location (campus, home, coffee shop, outside, other), each leaf represents an individual reading session, and leaf color encodes pages read, making the data experiential and emotionally resonant rather than statistically precise. In contrast, the exploratory visualizations use conventional statistical graphics (a scatterplot showing the relationship between reading duration and pages read, and a boxplot comparing pages read across reading locations). The exploratory visualization prioritizes accurate representation of distributions and relationships while the affective visualization shows aesthetic, emotions, and creativity.</p>
+<p><em>What similarities do you see?</em> Both visualizations have the same core variables from the personal dataset: reading location and pages read. The use of color to distinguish categories or encode magnitude appears across both the affective visualization (leaf colors representing pages read) and the exploratory boxplot (different colors per location).</p>
+<p><em>What patterns do you see?</em> The exploratory boxplot suggests campus reading sessions tend to produce more pages read than home sessions, and the scatterplot shows a positive relationship between reading duration and pages read. These same patterns are present but harder to read precisely in the affective visualization, where the home branch appears to have more leaves clustered at warmer colors (higher pages) than the campus branch, though the non-standard format makes direct comparison less intuitive.</p>
+<p><em>Feedback and implementation</em> During office hours, feedback from my peers suggested making the leaf size or color scale more explicit so viewers could decode the data without a legend being necessary. I tried to implement this by adding a more consistent color gradient across leaves in the final affective visualization and using a darker yellow color. I also incorporated newspaper into the whole visualization instead of just the tree base to play around with more of a mixed media and get more creative.</p>
+</section>
+<section id="b.-designing-an-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="b.-designing-an-analysis">b. Designing an analysis</h2>
+<p>To examine whether reading location predicts the number of pages read per session, I would propose a Kruskal-Wallis test. My response variable, pages read, is a continuous numeric variable, and my predictor variable, reading location (campus, home, coffee shop, outside, other), is a categorical variable with more than two groups. A Kruskal-Wallis test is appropriate here because it compares medians across more than two groups of a categorical predictor, which directly addresses my research question of whether where I read influences how much I read. Additionally, given the small sample size in my personal dataset, the data are unlikely to meet the normality assumption required for a one-way ANOVA, making the Kruskal-Wallis test a more appropriate non-parametric alternative that does not assume a normal distribution.</p>
+</section>
+<section id="c.-check-any-assumptions-and-run-your-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="c.-check-any-assumptions-and-run-your-analysis">c.&nbsp;Check any assumptions and run your analysis</h2>
 </section>
 </section>
 
