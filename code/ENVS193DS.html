@@ -119,8 +119,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#c.-check-any-assumptions-and-run-your-analysis" id="toc-c.-check-any-assumptions-and-run-your-analysis" class="nav-link" data-scroll-target="#c.-check-any-assumptions-and-run-your-analysis">c.&nbsp;Check any assumptions and run your analysis</a>
   <ul class="collapse">
   <li><a href="#check-all-assumptions" id="toc-check-all-assumptions" class="nav-link" data-scroll-target="#check-all-assumptions">Check all assumptions</a></li>
-  <li><a href="#run-the-test" id="toc-run-the-test" class="nav-link" data-scroll-target="#run-the-test">Run the test</a></li>
+  <li><a href="#wilcoxon-rank-sum-test" id="toc-wilcoxon-rank-sum-test" class="nav-link" data-scroll-target="#wilcoxon-rank-sum-test">Wilcoxon rank sum test</a></li>
   </ul></li>
+  <li><a href="#d.-create-a-visualization" id="toc-d.-create-a-visualization" class="nav-link" data-scroll-target="#d.-create-a-visualization">d.&nbsp;Create a visualization</a></li>
+  <li><a href="#e.-write-a-caption" id="toc-e.-write-a-caption" class="nav-link" data-scroll-target="#e.-write-a-caption">e. Write a caption</a></li>
+  <li><a href="#f.-write-about-your-results" id="toc-f.-write-about-your-results" class="nav-link" data-scroll-target="#f.-write-about-your-results">f.&nbsp;Write about your results</a></li>
+  <li><a href="#g.-sharing-your-affective-visualization" id="toc-g.-sharing-your-affective-visualization" class="nav-link" data-scroll-target="#g.-sharing-your-affective-visualization">g. Sharing your affective visualization</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -171,13 +175,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects) <span class="co"># getting model predictions</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MuMIn) <span class="co"># model selection</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DHARMa) <span class="co"># diagnostic check</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstatix) <span class="co"># kruskal-wallis</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># reading in data</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>kelp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Annual_Kelp_All_Years_20250903.csv"</span>)) <span class="co"># read in KFCD abundance and size of giant kelp data and save as an object called kelp</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>mopl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"MOPL_nest-site_selection_Duchardt_et_al._2019.csv"</span>)) <span class="co"># read in Mountain plover data and save as an object called mopl</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>my_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Personal_Data_ENVS194DS.csv"</span>)) <span class="co"># read in the personal data as an object named "my_data"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstatix) <span class="co"># cliffs delta</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(effsize) <span class="co"># add this — contains cliff.delta()</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># reading in data</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>kelp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Annual_Kelp_All_Years_20250903.csv"</span>)) <span class="co"># read in KFCD abundance and size of giant kelp data and save as an object called kelp</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>mopl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"MOPL_nest-site_selection_Duchardt_et_al._2019.csv"</span>)) <span class="co"># read in Mountain plover data and save as an object called mopl</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>my_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Personal_Data_ENVS194DS.csv"</span>)) <span class="co"># read in the personal data as an object named "my_data"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="problem-1.-research-writing" class="level1">
@@ -192,9 +197,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="c.-suggestions-for-rewriting" class="level2">
 <h2 class="anchored" data-anchor-id="c.-suggestions-for-rewriting">c.&nbsp;Suggestions for rewriting</h2>
+<p>In part 1, we did not find a significant relationship between precipitation and flooded wetland area in the San Joaquin River Delta (simple linear regression: F(df model, df residual) = test statistic, p = 0.11, α = significance level, adjusted R² = effect size). In part 2, we did not find a significant difference in median flooded wetland area across water year classifications (wet, above normal, below normal, dry, and critical drought) (Kruskal-Wallis test: H(df) = test statistic, p = 0.12, α = significance level).</p>
 </section>
 <section id="d.-interpretation" class="level2">
 <h2 class="anchored" data-anchor-id="d.-interpretation">d.&nbsp;Interpretation</h2>
+<p>One additional variable that could influence flooded wetland area is the number of water management interventions per land parcel (active reflooding events), which is a discrete numeric variable. This variable may influence wetland flooding because infrastructure upgrades and incentive programs that encouraged landowners to retain flooded wetlands longer into the breeding season were associated with the observed increases in flooded wetland area over time.</p>
 </section>
 </section>
 <section id="problem-2.-data-visualization" class="level1">
@@ -224,11 +231,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 5 × 3
   site_name    year mean_fronds
   &lt;fct&gt;       &lt;dbl&gt;       &lt;dbl&gt;
-1 Naples       2009        5.44
-2 Carpinteria  2015        5.03
-3 Isla Vista   2013        9.36
-4 Isla Vista   2020       25.0 
-5 Naples       2020        7.41</code></pre>
+1 Carpinteria  2016        4.97
+2 Naples       2002        3.01
+3 Carpinteria  2013        2.93
+4 Naples       2006        5.11
+5 Isla Vista   2004        5.46</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str</span>(kelp_clean) <span class="co"># display structure</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -525,10 +532,116 @@ vo_nest | Predicted |     95% CI
 </div>
 </div>
 </div>
+<p>Both distributions are unimodal and roughly symmetric, with non-school days centered around 35–40 pages and school days centered around 20–25 pages, suggesting that the similar shape assumption of the Wilcoxon rank sum test is reasonably satisfied.</p>
 </section>
-<section id="run-the-test" class="level3">
-<h3 class="anchored" data-anchor-id="run-the-test">Run the test</h3>
+<section id="wilcoxon-rank-sum-test" class="level3">
+<h3 class="anchored" data-anchor-id="wilcoxon-rank-sum-test">Wilcoxon rank sum test</h3>
+<section id="summary-of-median-and-n-values" class="level4">
+<h4 class="anchored" data-anchor-id="summary-of-median-and-n-values">Summary of median and n values</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>my_clean_data <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(school_day) <span class="sc">|&gt;</span> <span class="co"># group by school day vs non school day</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(pages_read), <span class="co"># calculate median pages read</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>() <span class="co"># count number of reading sessions per group</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  school_day     median     n
+  &lt;chr&gt;           &lt;dbl&gt; &lt;int&gt;
+1 Non-School Day   37.5    12
+2 School Day       28      22</code></pre>
+</div>
+</div>
 </section>
+<section id="run-a-wilcoxon-rank-sum-test" class="level4">
+<h4 class="anchored" data-anchor-id="run-a-wilcoxon-rank-sum-test">Run a Wilcoxon rank sum test</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(pages_read <span class="sc">~</span> school_day, <span class="co"># compare pages read by day type</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> my_clean_data) <span class="co"># use cleaned personal data</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  pages_read by school_day
+W = 174.5, p-value = 0.1299
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+</section>
+<section id="calculate-effect-size" class="level4">
+<h4 class="anchored" data-anchor-id="calculate-effect-size">Calculate effect size</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate Cliff's delta (effect size)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cliff.delta</span>( </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  pages_read <span class="sc">~</span> school_day, <span class="co"># response ~ predictor</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> my_clean_data <span class="co"># use personal data</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Cliff's Delta
+
+delta estimate: 0.3219697 (small)
+95 percent confidence interval:
+      lower       upper 
+-0.09883268  0.64508966 </code></pre>
+</div>
+</div>
+<p>I found a small (Cliff’s δ = 0.32) difference in median pages read between non-school days (n = 12) and school days (n = 22). (Wilcoxon rank-sum test, W = 174.5, p = 0.13, ⍺ = 0.05). A continuity correction was applied due to ties in the data. Pages read per session tended to be higher on non-school days (median = 37.5) than on school days (median = 28).</p>
+</section>
+</section>
+</section>
+<section id="d.-create-a-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="d.-create-a-visualization">d.&nbsp;Create a visualization</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># base layer: ggplot</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> my_clean_data,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> school_day, <span class="co"># categorical predictor on x-axis</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> pages_read)) <span class="sc">+</span> <span class="co"># response variable on y-axis</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># first layer: boxplot showing median and spread</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> school_day), <span class="co"># fill boxplot by day type</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">width =</span> <span class="fl">0.6</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>               <span class="at">outliers =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co"># avoid outliers being shown twice</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># second layer: jittered raw data points</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>, <span class="co"># horizontal spread</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>,  <span class="co"># set transparency of points</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>              <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span> <span class="co"># no vertical jitter</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">80</span>, <span class="at">by =</span> <span class="dv">10</span>)) <span class="sc">+</span> <span class="co"># y-axis breaks every 10 pages</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># custom colors </span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Non-School Day"</span> <span class="ot">=</span> <span class="st">"lightblue"</span>, <span class="co"># teal for non-school day</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"School Day"</span> <span class="ot">=</span> <span class="st">"#FFCCCB"</span>)) <span class="sc">+</span> <span class="co"># purple for school day</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># descriptive axis labels with units</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Day Type"</span>, <span class="co"># x-axis title</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Pages Read (pages per session)"</span>) <span class="sc">+</span> <span class="co"># y-axis title</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span> <span class="co"># changed from default</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="co"># remove redundant legend</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ENVS193DS_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="e.-write-a-caption" class="level2">
+<h2 class="anchored" data-anchor-id="e.-write-a-caption">e. Write a caption</h2>
+<p><strong>Figure 1. Pages read per session by day type.</strong> Boxplots show the median (center line), interquartile range (box), and 1.5× IQR (whiskers) for non-school days (blue, n = 12) and school days (pink, n = 22). Points represent individual reading sessions. Non-school days show a higher median pages read (37.5 pages) compared to school days (28 pages).</p>
+</section>
+<section id="f.-write-about-your-results" class="level2">
+<h2 class="anchored" data-anchor-id="f.-write-about-your-results">f.&nbsp;Write about your results</h2>
+<p>I did not find a significant difference in median pages read between non-school days (n = 12, median = 37.5) and school days (n = 22, median = 28) (Wilcoxon rank-sum test: W = 174.5, p = 0.13, α = 0.05), with a small effect size (Cliff’s δ = 0.32). Although non-school days had a median 9.5 pages higher than school days, the p-value exceeds the significance threshold and the confidence interval for Cliff’s δ spans zero (-0.10, 0.65), suggesting this difference could be due to random chance. Day type does not appear to have a significant influence on the number of pages I read per session.</p>
+</section>
+<section id="g.-sharing-your-affective-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="g.-sharing-your-affective-visualization">g. Sharing your affective visualization</h2>
+<p>I participating in Week 10 section by sharing my affective visualization.</p>
 </section>
 </section>
 

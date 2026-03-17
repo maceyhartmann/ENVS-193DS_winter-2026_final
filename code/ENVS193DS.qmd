@@ -16,6 +16,7 @@ execute:
 
 ```{r}
 #| label: packages and data
+#| warning: false
 
 # read in your packages here
 library(tidyverse) # general use
@@ -26,7 +27,8 @@ library(scales) # modifying axis labels
 library(ggeffects) # getting model predictions
 library(MuMIn) # model selection
 library(DHARMa) # diagnostic check
-library(rstatix) # kruskal-wallis
+library(rstatix) # cliffs delta
+library(effsize) # add this — contains cliff.delta()
 
 # reading in data
 
@@ -47,11 +49,11 @@ The coworker should make a jitter plot with an overlaid side by side box plot. T
 
 ## c. Suggestions for rewriting
 
-
+In part 1, we did not find a significant relationship between precipitation and flooded wetland area in the San Joaquin River Delta (simple linear regression: F(df model, df residual) = test statistic, p = 0.11, α = significance level, adjusted R² = effect size). In part 2, we did not find a significant difference in median flooded wetland area across water year classifications (wet, above normal, below normal, dry, and critical drought) (Kruskal-Wallis test: H(df) = test statistic, p = 0.12, α = significance level).
 
 ## d. Interpretation
 
-
+One additional variable that could influence flooded wetland area is the number of water management interventions per land parcel (active reflooding events), which is a discrete numeric variable. This variable may influence wetland flooding because infrastructure upgrades and incentive programs that encouraged landowners to retain flooded wetlands longer into the breeding season were associated with the observed increases in flooded wetland area over time.
 
 # Problem 2. Data visualization
 
@@ -60,6 +62,7 @@ The coworker should make a jitter plot with an overlaid side by side box plot. T
 ```{r}
 #| label: data-visualization
 #| message: false
+#| warning: false
 kelp_clean <- kelp |> # create a new object called kelp_clean using kelp
   clean_names() |> # clean up column names so that only lower case letters and underscores are used
   filter(site %in% c("IVEE", "NAPL", "CARP")) |> # filter by site 
@@ -90,6 +93,7 @@ The observation from 2000-09-22 at transect 6, quad 40 has a frond count value o
 ```{r}
 #| label: visualize-the-data
 #| message: false
+#| warning: false
 #| fig-height: 6
 #| fig-width: 8
 # create a plot with the cleaned kelp data set
@@ -147,6 +151,7 @@ Distance to prairie dog colony edge (edgedist) is a continuous variable measurin
 ## d. Run the models
 
 ```{r}
+#| warning: false
 mopl_clean <- mopl |> # create a new object called mopl_clean using mopl
   clean_names() |> # clean up column names so that only lower case letters and underscores are used
   # create binary response variable: 1 = used nest site, 0 = available site
@@ -181,6 +186,7 @@ mopl_model3 <- glm( used_bin ~ vo_nest, # response vs. visual obstruction
 ## e. Select the best model
 
 ```{r}
+#| warning: false
 # calculate the AIC for each model
 AIC( 
   mopl_model0,
@@ -195,6 +201,7 @@ The best model as determined by Akaike's Information Criterion (AIC) is the mode
 ## f. Check diagnostics
 
 ```{r}
+#| warning: false
 plot(
   simulateResiduals(mopl_model3) # check DHARMa diagnostic plots for mopl_model3
 )
@@ -205,6 +212,7 @@ Simulated residuals from the DHARMa package indicate that model assumptions are 
 ## g. Visualize model predictions
 
 ```{r}
+#| warning: false
 # predicted probabilities from model 3
 preds <- ggpredict(
   mopl_model3,
@@ -248,6 +256,7 @@ ggplot(mopl_clean,
 ## i. Calculate model predictions
 
 ```{r}
+#| warning: false
 ggpredict(mopl_model3, # use model 3 (visual obstruction only)
           terms = "vo_nest [0]") # visual obstruction = 0
 ```
@@ -284,6 +293,7 @@ The key assumptions for a Wilcoxon rank sum test include that the response varia
 
 ```{r}
 #| echo: false
+#| warning: false
 my_clean_data <- my_data |> # create a new object called my_clean_data using my_data
   clean_names() |> # clean up column names so that only lower case letters and underscores are used
   mutate(school_day = recode(school_day,
@@ -292,6 +302,7 @@ my_clean_data <- my_data |> # create a new object called my_clean_data using my_
 ```
 
 ```{r}
+#| warning: false
 # base layer: ggplot
 ggplot(data = my_clean_data, # use cleaned personal data 
        aes(x = pages_read, # pages read on x-axis
@@ -313,10 +324,85 @@ ggplot(data = my_clean_data, # use cleaned personal data
         axis.line.x = element_line(color = "black")) 
 ```
 
-### Run the test
+Both distributions are unimodal and roughly symmetric, with non-school days centered around 35–40 pages and school days centered around 20–25 pages, suggesting that the similar shape assumption of the Wilcoxon rank sum test is reasonably satisfied.
 
+### Wilcoxon rank sum test
 
+#### Summary of median and n values
+```{r}
+#| warning: false
+my_clean_data |>
+  group_by(school_day) |> # group by school day vs non school day
+  summarize(
+    median = median(pages_read), # calculate median pages read
+    n = n() # count number of reading sessions per group
+  )
+```
 
+#### Run a Wilcoxon rank sum test 
 
+```{r}
+#| warning: false
+wilcox.test(pages_read ~ school_day, # compare pages read by day type
+            data = my_clean_data) # use cleaned personal data
+```
+
+#### Calculate effect size
+
+```{r}
+# calculate Cliff's delta (effect size)
+cliff.delta( 
+  pages_read ~ school_day, # response ~ predictor
+  data = my_clean_data # use personal data
+)
+```
+
+I found a small (Cliff's δ = 0.32) difference in median pages read between non-school days (n = 12) and school days (n = 22). (Wilcoxon rank-sum test, W = 174.5, p = 0.13, ⍺ = 0.05). A continuity correction was applied due to ties in the data. Pages read per session tended to be higher on non-school days (median = 37.5) than on school days (median = 28).
+
+## d. Create a visualization
+
+```{r}
+# base layer: ggplot
+ggplot(data = my_clean_data,
+       aes(x = school_day, # categorical predictor on x-axis
+           y = pages_read)) + # response variable on y-axis
+  
+  # first layer: boxplot showing median and spread
+  geom_boxplot(aes(fill = school_day), # fill boxplot by day type
+               width = 0.6,
+               outliers = FALSE) + # avoid outliers being shown twice
+  
+  # second layer: jittered raw data points
+  geom_jitter(width = 0.1, # horizontal spread
+              alpha = 0.4,  # set transparency of points
+              height = 0) + # no vertical jitter
+  
+  scale_y_continuous(breaks = seq(0, 80, by = 10)) + # y-axis breaks every 10 pages
+  
+  # custom colors 
+ scale_fill_manual(values = c(
+    "Non-School Day" = "lightblue", # teal for non-school day
+    "School Day" = "#FFCCCB")) + # purple for school day
+  
+  # descriptive axis labels with units
+  labs(x = "Day Type", # x-axis title
+       y = "Pages Read (pages per session)") + # y-axis title
+  
+  theme_classic() + # changed from default
+  theme(legend.position = "none") # remove redundant legend
+
+```
+
+## e. Write a caption
+
+**Figure 1. Pages read per session by day type.** Boxplots show the median (center line), interquartile range (box), and 1.5× IQR (whiskers) for non-school days (blue, n = 12) and school days (pink, n = 22). Points represent individual reading sessions. Non-school days show a higher median pages read (37.5 pages) compared to school days (28 pages).
+
+## f. Write about your results
+
+I did not find a significant difference in median pages read between non-school days (n = 12, median = 37.5) and school days (n = 22, median = 28) (Wilcoxon rank-sum test: W = 174.5, p = 0.13, α = 0.05), with a small effect size (Cliff's δ = 0.32). Although non-school days had a median 9.5 pages higher than school days, the p-value exceeds the significance threshold and the confidence interval for Cliff's δ spans zero (-0.10, 0.65), suggesting this difference could be due to random chance. Day type does not appear to have a significant influence on the number of pages I read per session.
+
+## g. Sharing your affective visualization
+
+I participating in Week 10 section by sharing my affective visualization. 
 
 
