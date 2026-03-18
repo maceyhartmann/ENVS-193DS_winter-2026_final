@@ -16,6 +16,7 @@ execute:
 
 ```{r}
 #| label: packages and data
+#| message: false
 #| warning: false
 
 # read in your packages here
@@ -28,8 +29,7 @@ library(ggeffects) # getting model predictions
 library(MuMIn) # model selection
 library(DHARMa) # diagnostic check
 library(rstatix) # cliffs delta
-library(effsize) # add this — contains cliff.delta()
-library(showtext) # custom fonts
+library(effsize) # cliff.delta()
 library(systemfonts) # custom fonts
 
 # reading in data
@@ -91,13 +91,6 @@ str(kelp_clean) # display structure
 The observation from 2000-09-22 at transect 6, quad 40 has a frond count value of -99999, which is a value used to indicate missing data (either because data were not collected for that species or because a datasheet was lost, as noted in the Methods and protocols section of the data page). This value is filtered out because -99999 does not represent a real frond count and would skew any calculations of mean fronds if retained.
 
 ## c. Visualize the data
-
-```{r}
-#| echo: false
-font_add_google("Lato", "lato")  # "Lato" is the font name, "lato" is the alias
-showtext_auto()
-```
-
 
 ```{r}
 #| label: visualize-the-data
@@ -164,6 +157,8 @@ Distance to prairie dog colony edge (edgedist) is a continuous variable measurin
 ## d. Run the models
 
 ```{r}
+#| label: run-the-models
+#| message: false
 #| warning: false
 mopl_clean <- mopl |> # create a new object called mopl_clean using mopl
   clean_names() |> # clean up column names so that only lower case letters and underscores are used
@@ -199,6 +194,8 @@ mopl_model3 <- glm( used_bin ~ vo_nest, # response vs. visual obstruction
 ## e. Select the best model
 
 ```{r}
+#| label: select-best-model
+#| message: false
 #| warning: false
 # calculate the AIC for each model
 AIC( 
@@ -214,6 +211,8 @@ The best model as determined by Akaike's Information Criterion (AIC) is the mode
 ## f. Check diagnostics
 
 ```{r}
+#| label: check-diagnostics
+#| message: false
 #| warning: false
 plot(
   simulateResiduals(mopl_model3) # check DHARMa diagnostic plots for mopl_model3
@@ -225,6 +224,8 @@ Simulated residuals from the DHARMa package indicate that model assumptions are 
 ## g. Visualize model predictions
 
 ```{r}
+#| label: visualize-predictions
+#| message: false
 #| warning: false
 # predicted probabilities from model 3
 preds <- ggpredict(
@@ -269,6 +270,8 @@ ggplot(mopl_clean,
 ## i. Calculate model predictions
 
 ```{r}
+#| label: calculate-predictions
+#| message: false
 #| warning: false
 ggpredict(mopl_model3, # use model 3 (visual obstruction only)
           terms = "vo_nest [0]") # visual obstruction = 0
@@ -305,7 +308,9 @@ To examine whether the day type (school day or non-school day) predicts the numb
 The key assumptions for a Wilcoxon rank sum test include that the response variable is continuous (met by nature of the variable, as pages read is a continuous numeric variable), the predictor variable has two categorical, independent groups (met by nature of the variable (school day or non-school day),  observations are independent (met by study design, as each reading session is a separate, independent observation), and that the two groups have similar distribution shapes (must do visual assumption check). 
 
 ```{r}
+#| label: mutate-data
 #| echo: false
+#| message: false
 #| warning: false
 my_clean_data <- my_data |> # create a new object called my_clean_data using my_data
   clean_names() |> # clean up column names so that only lower case letters and underscores are used
@@ -315,6 +320,8 @@ my_clean_data <- my_data |> # create a new object called my_clean_data using my_
 ```
 
 ```{r}
+#| label: check-assumptions
+#| message: false
 #| warning: false
 # base layer: ggplot
 ggplot(data = my_clean_data, # use cleaned personal data 
@@ -343,6 +350,8 @@ Both distributions are unimodal and roughly symmetric, with non-school days cent
 
 #### Summary of median and n values
 ```{r}
+#| label: stats-summary
+#| message: false
 #| warning: false
 my_clean_data |>
   group_by(school_day) |> # group by school day vs non school day
@@ -355,6 +364,8 @@ my_clean_data |>
 #### Run a Wilcoxon rank sum test 
 
 ```{r}
+#| label: wilcox-test
+#| message: false
 #| warning: false
 wilcox.test(pages_read ~ school_day, # compare pages read by day type
             data = my_clean_data) # use cleaned personal data
@@ -363,6 +374,9 @@ wilcox.test(pages_read ~ school_day, # compare pages read by day type
 #### Calculate effect size
 
 ```{r}
+#| label: cliff's-delta
+#| message: false
+#| warning: false
 # calculate Cliff's delta (effect size)
 cliff.delta( 
   pages_read ~ school_day, # response ~ predictor
@@ -375,6 +389,9 @@ I found a small (Cliff's δ = 0.32) difference in median pages read between non-
 ## d. Create a visualization
 
 ```{r}
+#| label: create-visualizations
+#| message: false
+#| warning: false
 # base layer: ggplot
 ggplot(data = my_clean_data,
        aes(x = school_day, # categorical predictor on x-axis
